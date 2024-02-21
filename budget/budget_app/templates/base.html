@@ -1,0 +1,94 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Plan Your Budget{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+        }
+        .logo h1 a {
+            color: white;
+            text-decoration: none;
+        }
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+        main {
+            padding: 20px;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><a href="{% url 'home' %}">Plan Your Budget</a></h1>
+        </div>
+        <nav>
+            <ul>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'logout' %}" class="btn">Wyloguj</a></li>
+                    <li><a href="{% url 'charts' %}" class="btn">Wykresy</a></li>
+                    <li><a href="{% url 'categories' %}" class="btn">Kategorie</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="btn">Zaloguj</a></li>
+                    <li><a href="{% url 'register' %}" class="btn">Załóż konto</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% if not user.is_authenticated %}
+            <section class="welcome-section">
+                <h2>Witaj w aplikacji Plan Your Budget!</h2>
+                <p>Nasza aplikacja "Plan Your Budget" to doskonałe narzędzie do kontrolowania swoich wydatków, zarządzania budżetem oraz śledzenia transakcji. Dzięki prostemu i intuicyjnemu interfejsowi możesz łatwo zapanować nad swoimi finansami.</p>
+                <h3>Dlaczego warto się zarejestrować?</h3>
+                <ul>
+                    <li><strong>Zarządzanie budżetem:</strong> Twórz i śledź swoje budżety na różne okresy czasu, dzięki czemu będziesz wiedział, ile możesz wydać w danym miesiącu.</li>
+                    <li><strong>Śledzenie transakcji:</strong> Dodawaj swoje transakcje, określając ich kategorię, datę oraz kwotę, aby mieć pełen przegląd swoich wydatków.</li>
+                    <li><strong>Wygodne logowanie:</strong> Zarejestruj się, aby móc łatwo dostępować do swoich danych finansowych z każdego urządzenia.</li>
+                    <li><strong>Bezpieczeństwo danych:</strong> Twoje dane są chronione, dzięki czemu możesz mieć pewność, że informacje o Twoich finansach są bezpieczne.</li>
+                </ul>
+            </section>
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 Finance Manager. created by Michał Tylus</p>
+    </footer>
+</body>
+</html>

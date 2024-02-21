@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}
+Plan Your Budget - Kategorie
+{% endblock %}
+
+{% block content %}
+<h2>Kategorie</h2>
+
+<h3>Kategorie Wydatków</h3>
+<ul>
+  {% for category in categories %}
+    <li>{{ category.name }}</li>
+  {% endfor %}
+</ul>
+
+<h3>Dodaj nową kategorię</h3>
+<form method="post" action="{% url 'add_category' %}">
+    {% csrf_token %}
+    <label for="new_category">Nowa kategoria:</label>
+    <input type="text" id="new_category" name="new_category" required><br><br>
+    <button type="submit">Dodaj</button>
+</form>
+<div style="margin-top: 20px;">
+    <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
+</div>
+{% endblock %}

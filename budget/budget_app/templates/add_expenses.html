@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}
+Plan Your Budget - Dodaj Wydatek
+{% endblock %}
+
+{% block content %}
+<h2>Dodaj Wydatek</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="amount">Kwota:</label>
+    <input type="number" id="amount" name="amount" min="0" step="0.01" required><br>
+    <p>Kategorie:</p>
+    <input type="radio" id="jedzenie" name="category" value="Jedzenie">
+    <label for="jedzenie">Jedzenie</label><br>
+    <input type="radio" id="rachunki" name="category" value="Rachunki">
+    <label for="rachunki">Rachunki</label><br>
+    <input type="radio" id="transport" name="category" value="Transport">
+    <label for="transport">Transport</label><br>
+    <input type="radio" id="rozrywka" name="category" value="Rozrywka">
+    <label for="rozrywka">Rozrywka</label><br><br>
+
+    <label for="date">Data:</label>
+    <input type="date" id="date" name="date" required><br><br>
+
+    <label for="comment">Komentarz:</label>
+    <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br><br>
+
+    <button type="submit">Dodaj</button>
+</form>
+
+<div style="margin-top: 20px;">
+    <button onclick="window.location.href='{% url 'expenses_list' %}'" class="btn">Wróć</button>
+</div>
+{% endblock %}

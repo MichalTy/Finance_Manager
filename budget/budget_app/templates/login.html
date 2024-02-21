@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Plan Your Budget - Logowanie
+{% endblock %}
+
+{% block content %}
+<h2>Zaloguj się</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Zaloguj</button>
+</form>
+{% endblock %}

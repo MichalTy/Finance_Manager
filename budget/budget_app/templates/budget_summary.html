@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}
+Plan Your Budget - Podsumowanie Budżetu
+{% endblock %}
+
+{% block content %}
+<h2 class="centered-heading">Podsumowanie Budżetu</h2>
+{% if budget %}
+<p>Budżet dla kategorii "{{ budget.category.name }}": {{ budget.amount }}</p>
+{% endif %}
+<p>Suma dochodów: {{ total_income }}</p>
+<p>Suma wydatków: {{ total_expense }}</p>
+<p>Aktualny stan konta: {{ balance }}</p>
+<div style="margin-top: 20px;">
+    <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
+</div>
+{% endblock %}
+ %}

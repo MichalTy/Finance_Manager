@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}
+Plan Your Budget - Witaj
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <section class="buttons-section">
+        <div class="button" style="text-align: center;">
+            <a href="{% url 'budget_summary' %}" class="btn">Suma</a>
+        </div>
+        <div class="button" style="float: left;">
+            <a href="{% url 'expenses_list' %}" class="btn">Wydatki</a>
+        </div>
+        <div class="button" style="float: right;">
+            <a href="{% url 'incomes_list' %}" class="btn">Dochody</a>
+        </div>
+    </section>
+    <div style="clear: both; padding-top: 20px;">
+        <div class="tenor-gif-embed" data-postid="21157324" data-share-method="host" data-aspect-ratio="1.78771" data-width="100%"><a href="https://tenor.com/view/cat-jam-stonks-stonk-jam-head-shot-hans-gif-21157324">Cat Jam Stonks GIF</a>from <a href="https://tenor.com/search/cat+jam-gifs">Cat Jam GIFs</a></div>
+        <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+    </div>
+{% endif %}
+{% endblock %}

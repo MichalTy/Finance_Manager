@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}
+Plan Your Budget - Lista Dochodów
+{% endblock %}
+
+{% block content %}
+<h2>Lista Dochodów</h2>
+<div style="margin-bottom: 10px;">
+    <a href="{% url 'add_income' %}" class="btn" style="margin-right: 10px;">Dodaj</a>
+    <a href="{% url 'fetch_incomes' %}?filter=day" class="btn date-filter-btn" data-filter="day">Dzień</a>
+    <a href="{% url 'fetch_incomes' %}?filter=week" class="btn date-filter-btn" data-filter="week">Tydzień</a>
+    <a href="{% url 'fetch_incomes' %}?filter=month" class="btn date-filter-btn" data-filter="month">Miesiąc</a>
+    <a href="{% url 'fetch_incomes' %}?filter=year" class="btn date-filter-btn" data-filter="year">Rok</a>
+    <a href="{% url 'fetch_incomes' %}?filter=period" class="btn date-filter-btn" data-filter="period">Okres</a>
+</div>
+<ul id="income-list">
+    {% for income in incomes %}
+        <li>
+            <span class="income-amount">{{ income.amount }}</span>
+            <span class="income-date">{{ income.date }}</span>
+            <span class="income-category">{{ income.category.name }}</span>
+            {% if income.comment %}
+                <span class="income-comment">{{ income.comment }}</span>
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>Brak dochodów.</li>
+    {% endfor %}
+</ul>
+
+<section class="pie-chart-section">
+    <canvas id="incomePieChart" width="400" height="400"></canvas>
+</section>
+
+<div style="margin-top: 20px;">
+    <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const incomeCategories = {};
+
+    const incomeAmountElements = document.querySelectorAll('.income-amount');
+
+    incomeAmountElements.forEach(incomeAmountElement => {
+        const category = incomeAmountElement.parentElement.querySelector('.income-category').textContent;
+        const amount = parseFloat(incomeAmountElement.textContent);
+
+        if (incomeCategories.hasOwnProperty(category)) {
+            incomeCategories[category] += amount;
+        } else {
+            incomeCategories[category] = amount;
+        }
+    });
+
+    const categoryLabels = Object.keys(incomeCategories);
+    const categoryAmounts = Object.values(incomeCategories);
+
+    if (document.getElementById('incomePieChart')) {
+        const ctx = document.getElementById('incomePieChart').getContext('2d');
+        const incomePieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryAmounts,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)',
+                        'rgba(255, 159, 64, 0.5)',
+                        'rgba(255, 99, 132, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+</script>
+
+{% endblock %}
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dateFilterBtns = document.querySelectorAll('.date-filter-btn');
+
+    dateFilterBtns.forEach(function (btn) {
+        btn.addEventListener('click', function (event) {
+            event.preventDefault();
+            const filter = this.getAttribute('data-filter');
+            if (filter === 'day') {
+                fetchIncomeForDay();
+            }
+        });
+    });
+
+    function fetchIncomeForDay() {
+        fetch('/fetch_incomes?filter=day')
+            .then(response => response.text())
+            .then(data => {
+                const incomeList = document.getElementById('income-list');
+                incomeList.innerHTML = data;
+            })
+            .catch(error => console.error('Błąd podczas pobierania danych:', error));
+    }
+});
+</script>
