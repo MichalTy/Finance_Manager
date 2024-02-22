@@ -1,0 +1,7 @@
+{% extends 'categories.html' %}
+{% block expense_categories %}{% endblock %}
+{% block income_categories %}
+  {% for category in income_categories %}
+    <li>{{ category.name }}</li>
+  {% endfor %}
+{% endblock %}

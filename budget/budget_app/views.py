@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Sum
 from .models import Budget, Expense, Income, Category
-from .forms import CategoryForm
+from .forms import CategoryForm, IncomeForm, ExpenseForm
 from datetime import datetime, timedelta
 
 
@@ -69,31 +69,19 @@ def expenses_list(request):
 @login_required
 def add_expenses(request):
     if request.method == 'POST':
-        amount = request.POST.get('amount')
-        category_name = request.POST.get('exp_category')
-        date = request.POST.get('date')
-        comment = request.POST.get('comment')
-
-        if not date:
-            date = datetime.now().date()
-        else:
-            date = datetime.strptime(date, '%Y-%m-%d').date()
-
-        category, created = Category.objects.get_or_create(name=category_name)
-
-        expense = Expense.objects.create(
-            user=request.user,
-            category=category,
-            amount=amount,
-            date=date,
-            comment=comment
-        )
-
-        Budget.objects.filter(user=request.user, category=category).update(amount=F('amount') + amount)
-
-        return redirect('expenses_list')
+        form = ExpenseForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data['amount']
+            category = form.cleaned_data['category']
+            date = form.cleaned_data['date']
+            comment = form.cleaned_data['comment']
+            expense = Expense.objects.create(user=request.user, category=category, amount=amount, date=date,
+                                             comment=comment)
+            return redirect('expenses_list')
     else:
-        return render(request, 'add_expenses.html')
+        form = ExpenseForm()
+        expense_categories = Category.objects.filter(type='expense')
+    return render(request, 'add_expenses.html', {'form': form, 'expense_categories': expense_categories})
 
 
 def fetch_expenses(request):
@@ -134,25 +122,19 @@ def incomes_list(request):
 @login_required
 def add_income(request):
     if request.method == 'POST':
-        amount = request.POST.get('amount')
-        category_name = request.POST.get('inc_category')
-        comment = request.POST.get('comment')
-
-        date = request.POST.get('date')
-        if not date:
-            date = datetime.now().date()
-        else:
-            date = datetime.strptime(date, '%Y-%m-%d').date()
-
-        category, created = Category.objects.get_or_create(name=category_name)
-
-        income = Income.objects.create(user=request.user, category=category, amount=amount, date=date, comment=comment)
-
-        Budget.objects.filter(user=request.user, category=category).update(amount=F('amount') + amount)
-
-        return redirect('incomes_list')
+        form = IncomeForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data['amount']
+            category = form.cleaned_data['category']
+            date = form.cleaned_data['date']
+            comment = form.cleaned_data['comment']
+            income = Income.objects.create(user=request.user, category=category, amount=amount, date=date,
+                                           comment=comment)
+            return redirect('incomes_list')
     else:
-        return render(request, 'add_incomes.html')
+        categories = Category.objects.filter(type='income').distinct()
+        form = IncomeForm()
+    return render(request, 'add_incomes.html', {'form': form, 'income_categories': categories})
 
 
 def fetch_incomes(request):
@@ -194,19 +176,11 @@ def charts_view(request):
                   {'total_income': total_income, 'total_expense': total_expense, 'budget_summary': budget_summary})
 
 
-@login_required
 def categories_view(request):
-    if request.method == 'POST':
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            new_category = form.cleaned_data['new_category']
-            Category.objects.create(name=new_category)
-            categories = Category.objects.all()
-            return render(request, 'categories.html', {'categories': categories, 'form': form})
-    else:
-        form = CategoryForm()
-        categories = Category.objects.all()
-        return render(request, 'categories.html', {'categories': categories, 'form': form})
+    expense_categories = Category.objects.filter(type='expense')
+    income_categories = Category.objects.filter(type='income')
+    return render(request, 'categories.html',
+                  {'expense_categories': expense_categories, 'income_categories': income_categories})
 
 
 def add_category_view(request):
@@ -214,7 +188,32 @@ def add_category_view(request):
         form = CategoryForm(request.POST)
         if form.is_valid():
             new_category = form.cleaned_data['new_category']
-            return redirect('categories')
+            category_type = form.cleaned_data['category_type']
+            category = Category.objects.create(name=new_category, type=category_type)
+            if category.type == 'expense':
+                return redirect('categories_expense')
+            elif category.type == 'income':
+                return redirect('categories_income')
     else:
         form = CategoryForm()
     return render(request, 'add_category.html', {'form': form})
+
+
+@login_required
+def categories_expense(request):
+    expense_categories = Category.objects.filter(type='expense')
+    return render(request, 'categories_expense.html', {'expense_categories': expense_categories})
+
+
+@login_required
+def categories_income(request):
+    income_categories = Category.objects.filter(type='income')
+    return render(request, 'categories_income.html', {'income_categories': income_categories})
+
+
+@login_required
+def delete_category(request, category_id):
+    if request.method == 'POST':
+        category = Category.objects.get(id=category_id)
+        category.delete()
+    return redirect('categories')

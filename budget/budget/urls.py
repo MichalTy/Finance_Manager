@@ -32,4 +32,7 @@ urlpatterns = [
     path('charts/', views.charts_view, name='charts'),
     path('categories/', views.categories_view, name='categories'),
     path('add_category/', views.add_category_view, name='add_category'),
+    path('categories/expense/', views.categories_expense, name='categories_expense'),
+    path('categories/income/', views.categories_income, name='categories_income'),
+    path('delete_category/<int:category_id>/', views.delete_category, name='delete_category'),
 ]

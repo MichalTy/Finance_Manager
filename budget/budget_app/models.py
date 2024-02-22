@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
+    type = models.CharField(max_length=10, default='expense')
 
 
 class Transaction(models.Model):

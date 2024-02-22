@@ -4,12 +4,48 @@ Plan Your Budget - Kategorie
 {% endblock %}
 
 {% block content %}
+<style>
+    .category-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .category-name {
+        margin-left: 40px;
+    }
+
+    .delete-form {
+        margin-left: 10px;
+    }
+</style>
+
 <h2>Kategorie</h2>
 
 <h3>Kategorie Wydatków</h3>
 <ul>
-  {% for category in categories %}
-    <li>{{ category.name }}</li>
+  {% for category in expense_categories %}
+    <li class="category-container">
+        <span class="category-name">{{ category.name }}</span>
+        <form class="delete-form" method="post" action="{% url 'delete_category' category.id %}">
+            {% csrf_token %}
+            <button type="submit">Usuń</button>
+        </form>
+    </li>
+  {% endfor %}
+</ul>
+
+<h3>Kategorie Dochodów</h3>
+<ul>
+  {% for category in income_categories %}
+    <li class="category-container">
+        <span class="category-name">{{ category.name }}</span>
+        <form class="delete-form" method="post" action="{% url 'delete_category' category.id %}">
+            {% csrf_token %}
+            <button type="submit">Usuń</button>
+        </form>
+    </li>
   {% endfor %}
 </ul>
 
@@ -18,6 +54,11 @@ Plan Your Budget - Kategorie
     {% csrf_token %}
     <label for="new_category">Nowa kategoria:</label>
     <input type="text" id="new_category" name="new_category" required><br><br>
+    <label for="category_type">Typ:</label>
+    <select id="category_type" name="category_type">
+        <option value="expense">Wydatek</option>
+        <option value="income">Dochód</option>
+    </select><br><br>
     <button type="submit">Dodaj</button>
 </form>
 <div style="margin-top: 20px;">

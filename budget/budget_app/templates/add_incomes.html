@@ -9,22 +9,16 @@ Plan Your Budget - Dodaj Dochód
     {% csrf_token %}
     <label for="amount">Kwota:</label>
     <input type="number" id="amount" name="amount" min="0" step="0.01" required><br>
-    <p>Kategorie:</p>
-    <input type="radio" id="wyplata" name="inc_category" value="Wypłata">
-    <label for="wyplata">Wypłata</label><br>
-    <input type="radio" id="prezent" name="inc_category" value="Prezent">
-    <label for="prezent">Prezent</label><br>
-    <input type="radio" id="procent" name="inc_category" value="Procent">
-    <label for="procent">Procent</label><br>
-    <input type="radio" id="inne" name="inc_category" value="Inne">
-    <label for="inne">Inne</label><br><br>
-
+    <label for="inc_category">Kategoria:</label>
+    <select id="inc_category" name="category">
+        {% for category in income_categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select><br><br>
     <label for="date">Data:</label>
     <input type="date" id="date" name="date" required><br><br>
-
     <label for="comment">Komentarz:</label>
     <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br><br>
-
     <button type="submit">Dodaj</button>
 </form>
 
