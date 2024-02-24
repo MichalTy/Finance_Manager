@@ -35,4 +35,7 @@ urlpatterns = [
     path('categories/expense/', views.categories_expense, name='categories_expense'),
     path('categories/income/', views.categories_income, name='categories_income'),
     path('delete_category/<int:category_id>/', views.delete_category, name='delete_category'),
+    path('report/', views.report_view, name='report'),
+    path('generate_csv_report/', views.generate_csv_report, name='generate_csv_report'),
+    path('generate_pdf_report/', views.generate_pdf_report, name='generate_pdf_report'),
 ]

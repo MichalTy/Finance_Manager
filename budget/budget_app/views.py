@@ -1,11 +1,25 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+import csv
+import json
+
+from django.core.serializers.json import DjangoJSONEncoder
+
+from datetime import datetime, timedelta
+
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+
 from django.db.models import F, Sum
-from .models import Budget, Expense, Income, Category
-from .forms import CategoryForm, IncomeForm, ExpenseForm
-from datetime import datetime, timedelta
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+
+from .forms import CategoryForm, ExpenseForm, IncomeForm
+from .models import Budget, Category, Expense, Income
 
 
 def home(request):
@@ -167,13 +181,20 @@ def fetch_incomes(request):
 
 
 def charts_view(request):
-    total_income = Income.objects.filter(user=request.user).aggregate(total_income=Sum('amount'))['total_income'] or 0
-    total_expense = Expense.objects.filter(user=request.user).aggregate(total_expense=Sum('amount'))[
-                        'total_expense'] or 0
-    balance = total_income - total_expense
+    monthly_data = []
+    for month in range(1, 13):
+        monthly_income = \
+        Income.objects.filter(user=request.user, date__month=month).aggregate(total_income=Sum('amount'))[
+            'total_income'] or 0
+        monthly_expense = \
+        Expense.objects.filter(user=request.user, date__month=month).aggregate(total_expense=Sum('amount'))[
+            'total_expense'] or 0
+        monthly_balance = monthly_income - monthly_expense
+        monthly_data.append({'income': monthly_income, 'expense': monthly_expense, 'balance': monthly_balance})
 
-    return render(request, 'charts.html',
-                  {'total_income': total_income, 'total_expense': total_expense, 'budget_summary': budget_summary})
+    data_json = json.dumps(monthly_data, cls=DjangoJSONEncoder)
+
+    return render(request, 'charts.html', {'monthly_data': data_json})
 
 
 def categories_view(request):
@@ -217,3 +238,67 @@ def delete_category(request, category_id):
         category = Category.objects.get(id=category_id)
         category.delete()
     return redirect('categories')
+
+
+def report_view(request):
+    return render(request, 'report.html')
+
+
+def generate_csv_report(request):
+    incomes = Income.objects.filter(user=request.user)
+    expenses = Expense.objects.filter(user=request.user)
+
+    filename = f"Raport_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    writer = csv.writer(response)
+
+    writer.writerow(["Sekcja", "Data", "Kategoria", "Kwota", "Komentarz"])
+
+    for income in incomes:
+        writer.writerow(
+            ["Przychody", income.date.strftime("%Y-%m-%d"), income.category.name, income.amount, income.comment])
+
+    for expense in expenses:
+        writer.writerow(
+            ["Wydatki", expense.date.strftime("%Y-%m-%d"), expense.category.name, expense.amount, expense.comment])
+
+    return response
+
+
+def generate_pdf_report(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Raport.pdf"'
+    doc = SimpleDocTemplate(response, pagesize=letter)
+
+    styles = getSampleStyleSheet()
+    style_normal = styles['Normal']
+
+    incomes = Income.objects.filter(user=request.user)
+    expenses = Expense.objects.filter(user=request.user)
+
+    data = [['Typ', 'Data', 'Kategoria', 'Kwota', 'Komentarz']]
+
+    for income in incomes:
+        data.append(['Dochód', income.date.strftime("%Y-%m-%d"), income.category.name, income.amount, income.comment])
+
+    for expense in expenses:
+        data.append(
+            ['Wydatek', expense.date.strftime("%Y-%m-%d"), expense.category.name, expense.amount, expense.comment])
+
+    table = Table(data)
+    style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                        ('GRID', (0, 0), (-1, -1), 1, colors.black)])
+
+    table.setStyle(style)
+
+    elements = [table]
+    doc.build(elements)
+
+    return response

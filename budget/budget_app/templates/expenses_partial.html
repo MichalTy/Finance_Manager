@@ -32,4 +32,65 @@ Plan Your Budget - Lista Wydatków
 <div style="margin-top: 20px;">
     <button onclick="window.location.href='{% url 'expenses_list' %}'" class="btn">Wróć</button>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<section class="pie-chart-section">
+    <canvas id="categoryPieChart" width="400" height="400"></canvas>
+</section>
+
+<script>
+    const expenseCategories = {};
+    const expenseAmountElements = document.querySelectorAll('.expense-amount');
+
+    expenseAmountElements.forEach(expenseAmountElement => {
+        const category = expenseAmountElement.parentElement.querySelector('.expense-category').textContent;
+        const amount = parseFloat(expenseAmountElement.textContent);
+
+        if (expenseCategories.hasOwnProperty(category)) {
+            expenseCategories[category] += amount;
+        } else {
+            expenseCategories[category] = amount;
+        }
+    });
+
+    const categoryLabels = Object.keys(expenseCategories);
+    const categoryAmounts = Object.values(expenseCategories);
+
+    if (document.getElementById('categoryPieChart')) {
+        const ctx = document.getElementById('categoryPieChart').getContext('2d');
+        const categoryPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryAmounts,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)',
+                        'rgba(255, 159, 64, 0.5)',
+                        'rgba(255, 99, 132, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+</script>
+
 {% endblock %}

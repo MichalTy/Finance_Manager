@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Raport
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/report.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="report-section">
+            <h2>Raport</h2>
+    <p>Tutaj możesz pobrać raport w różnych formatach.</p>
+    <a href="{% url 'generate_pdf_report' %}" class="btn">Pobierz raport PDF</a>
+    <a href="{% url 'generate_csv_report' %}" class="btn">Pobierz raport CSV</a>
+            </form>
+        </div>
+    </section>
+
+    <div style="margin-top: 20px;">
+        <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
+    </div>
+{% endblock %}

@@ -1,18 +1,81 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}
 Plan Your Budget - Podsumowanie Budżetu
 {% endblock %}
 
 {% block content %}
+<style>
+.summary {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.summary p {
+    font-family: Roboto, sans-serif;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.summary .total {
+    font-weight: bold;
+    padding: 12px 35px;
+    border-radius: 50px;
+    display: inline-block;
+    transition: transform 0.5s, padding 0.5s;
+    cursor: pointer;
+}
+
+.summary .total:hover {
+    padding: 12px 50px;
+    transform: translateY(-2px);
+}
+
+.total-info {
+    font-size: 18px;
+    color: #555;
+    margin: 10px 0;
+}
+
+.balance-background {
+    background: linear-gradient(to right, #004d40, #00acc1);
+    padding: 10px 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    border: 2px solid #00695c;
+}
+
+.income-background {
+    background: linear-gradient(to right, #1b5e20, #b2dfdb);
+    padding: 5px 10px;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #33691e;
+}
+
+.expense-background {
+    background: linear-gradient(to right, #b71c1c, #ffcdd2);
+    padding: 5px 10px;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #8e0000;
+}
+
+.total-value {
+    vertical-align: middle;
+    display: inline-block;
+}
+</style>
+
 <h2 class="centered-heading">Podsumowanie Budżetu</h2>
 {% if budget %}
-<p>Budżet dla kategorii "{{ budget.category.name }}": {{ budget.amount }}</p>
+<p class="summary">Budżet dla kategorii "{{ budget.category.name }}": <span class="total">{{ budget.amount }}</span></p>
 {% endif %}
-<p>Suma dochodów: {{ total_income }}</p>
-<p>Suma wydatków: {{ total_expense }}</p>
-<p>Aktualny stan konta: {{ balance }}</p>
+<p class="summary total-info">Suma dochodów: <span class="total income-background"><span class="total-value">{{ total_income }}</span></span></p>
+<p class="summary total-info">Suma wydatków: <span class="total expense-background"><span class="total-value">{{ total_expense }}</span></span></p>
+<p class="summary total-info">Aktualny stan konta: <span class="total balance-background"><span class="total-value">{{ balance }}</span></span></p>
 <div style="margin-top: 20px;">
     <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
 </div>
 {% endblock %}
- %}

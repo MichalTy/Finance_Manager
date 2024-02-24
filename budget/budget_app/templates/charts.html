@@ -3,31 +3,63 @@
 {% block content %}
 <section class="charts-section">
     <h2>Wykresy</h2>
+    <div>
+        <label for="yearSelect">Wybierz rok:</label>
+        <select id="yearSelect">
+            {% for year in years %}
+                <option value="{{ year }}" {% if year == selected_year %} selected {% endif %}>{{ year }}</option>
+            {% endfor %}
+        </select>
+    </div>
     <canvas id="budgetChart" width="800" height="400"></canvas>
 </section>
 <div style="margin-top: 20px;">
     <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script type="text/javascript">
-    const totalIncome = {{ total_income }};
-    const totalExpense = {{ total_expense }};
-    const balance = {{ total_income }} - {{ total_expense }};
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Dane JSON
+    const monthlyData = JSON.parse('{{ monthly_data|escapejs }}');
+
+    // Dane do wykresu
+    const labels = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
+    const incomeData = monthlyData.map(data => data.income);
+    const expenseData = monthlyData.map(data => data.expense);
+    const balanceData = monthlyData.map(data => data.balance);
+
+    // Konfiguracja wykresu
     const ctx = document.getElementById('budgetChart').getContext('2d');
     const budgetChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Total Income', 'Total Expense', 'Balance'],
+            labels: labels,
             datasets: [{
-                label: 'Budget Summary',
-                data: [totalIncome, totalExpense, balance],
-                backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(75, 192, 192, 0.5)'],
-                borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'],
-                borderWidth: 1
+                label: 'Dochody',
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                data: incomeData
+            }, {
+                label: 'Wydatki',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+                data: expenseData
+            }, {
+                label: 'Stan konta',
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                data: balanceData
             }]
         },
         options: {
+            indexAxis: 'x',
+            group: {
+                groupWidth: 0.8
+            },
             scales: {
                 y: {
                     beginAtZero: true
@@ -35,6 +67,11 @@
             }
         }
     });
-</script>
 
+    const yearSelect = document.getElementById('yearSelect');
+    yearSelect.addEventListener('change', function() {
+        const selectedYear = yearSelect.value;
+    });
+});
+</script>
 {% endblock %}
