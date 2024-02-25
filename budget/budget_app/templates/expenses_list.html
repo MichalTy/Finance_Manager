@@ -11,7 +11,8 @@ Plan Your Budget - Lista Wydatków
     <a href="{% url 'fetch_expenses' %}?filter=week" class="btn date-filter-btn" data-filter="week">Tydzień</a>
     <a href="{% url 'fetch_expenses' %}?filter=month" class="btn date-filter-btn" data-filter="month">Miesiąc</a>
     <a href="{% url 'fetch_expenses' %}?filter=year" class="btn date-filter-btn" data-filter="year">Rok</a>
-    <a href="{% url 'fetch_expenses' %}?filter=period" class="btn date-filter-btn" data-filter="period">Okres</a>
+    <a href="{% url 'expenses_period' %}" class="btn date-filter-btn" data-filter="period">Okres</a>
+
 </div>
 <ul id="expense-list">
     {% for expense in expenses %}
@@ -28,14 +29,14 @@ Plan Your Budget - Lista Wydatków
     {% endfor %}
 </ul>
 
-<div style="margin-top: 20px;">
-    <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
-</div>
-
 <section class="pie-chart-section">
     <canvas id="categoryPieChart" width="400" height="400"></canvas>
 </section>
 
+<div style="margin-top: 20px;">
+    <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
+    <button onclick="window.location.href='{% url 'budget_summary' %}'" class="btn">Suma</button
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const expenseCategories = {};

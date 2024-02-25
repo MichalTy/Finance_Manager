@@ -7,11 +7,11 @@ Plan Your Budget - Lista Wydatków
 <h2>Lista Wydatków</h2>
 <div style="margin-bottom: 10px;">
     <a href="{% url 'add_expenses' %}" class="btn" style="margin-right: 10px;">Dodaj</a>
-    <a href="#" class="btn date-filter-btn" data-filter="day">Dzień</a>
-    <a href="#" class="btn date-filter-btn" data-filter="week">Tydzień</a>
-    <a href="#" class="btn date-filter-btn" data-filter="month">Miesiąc</a>
-    <a href="#" class="btn date-filter-btn" data-filter="year">Rok</a>
-    <a href="#" class="btn date-filter-btn" data-filter="period">Okres</a>
+    <a href="{% url 'fetch_expenses' %}?filter=day" class="btn date-filter-btn" data-filter="day">Dzień</a>
+    <a href="{% url 'fetch_expenses' %}?filter=week" class="btn date-filter-btn" data-filter="week">Tydzień</a>
+    <a href="{% url 'fetch_expenses' %}?filter=month" class="btn date-filter-btn" data-filter="month">Miesiąc</a>
+    <a href="{% url 'fetch_expenses' %}?filter=year" class="btn date-filter-btn" data-filter="year">Rok</a>
+    <a href="{% url 'expenses_period' %}" class="btn date-filter-btn" data-filter="period">Okres</a>
 </div>
 
 <ul id="expense-list">

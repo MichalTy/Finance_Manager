@@ -72,8 +72,8 @@ Plan Your Budget - Podsumowanie Budżetu
 {% if budget %}
 <p class="summary">Budżet dla kategorii "{{ budget.category.name }}": <span class="total">{{ budget.amount }}</span></p>
 {% endif %}
-<p class="summary total-info">Suma dochodów: <span class="total income-background"><span class="total-value">{{ total_income }}</span></span></p>
-<p class="summary total-info">Suma wydatków: <span class="total expense-background"><span class="total-value">{{ total_expense }}</span></span></p>
+<p class="summary total-info" onclick="window.location.href='{% url 'incomes_list' %}'">Suma dochodów: <span class="total income-background"><span class="total-value">{{ total_income }}</span></span></p>
+<p class="summary total-info" onclick="window.location.href='{% url 'expenses_list' %}'">Suma wydatków: <span class="total expense-background"><span class="total-value">{{ total_expense }}</span></span></p>
 <p class="summary total-info">Aktualny stan konta: <span class="total balance-background"><span class="total-value">{{ balance }}</span></span></p>
 <div style="margin-top: 20px;">
     <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>

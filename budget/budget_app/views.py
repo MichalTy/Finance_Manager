@@ -9,8 +9,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
-from django.db.models import F, Sum
-from django.http import HttpResponse
+from django.db.models import Sum
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from reportlab.lib import colors
@@ -127,6 +127,36 @@ def fetch_expenses(request):
     return render(request, 'expenses_partial.html', {'expenses': expenses})
 
 
+def expenses_period(request):
+    if request.method == 'GET':
+        start_date_str = request.GET.get('start-date')
+        end_date_str = request.GET.get('end-date')
+
+        if start_date_str and end_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            expenses = Expense.objects.filter(user=request.user, date__range=[start_date, end_date])
+
+            expense_categories = {}
+            for expense in expenses:
+                category_name = expense.category.name
+                amount = expense.amount
+                if category_name in expense_categories:
+                    expense_categories[category_name] += amount
+                else:
+                    expense_categories[category_name] = amount
+
+            expense_categories_float = {category: float(amount) for category, amount in expense_categories.items()}
+
+            return render(request, 'expenses_period.html', {'expense_categories': expense_categories_float,
+                                                            'start_date': start_date,
+                                                            'end_date': end_date})
+        else:
+            return render(request, 'expenses_period.html', {'error_message': 'Proszę podać daty początkową i końcową.'})
+    else:
+        return render(request, 'expenses_period.html', {'error_message': 'Metoda HTTP nie jest obsługiwana.'})
+
+
 @login_required
 def incomes_list(request):
     incomes = Income.objects.filter(user=request.user).order_by('-date')
@@ -180,21 +210,69 @@ def fetch_incomes(request):
     return render(request, 'incomes_partial.html', {'incomes': incomes})
 
 
+def incomes_period(request):
+    if request.method == 'GET':
+        start_date_str = request.GET.get('start-date')
+        end_date_str = request.GET.get('end-date')
+
+        if start_date_str and end_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            incomes = Income.objects.filter(user=request.user, date__range=[start_date, end_date])
+
+            income_categories = {}
+            for income in incomes:
+                category_name = income.category.name
+                amount = income.amount
+                if category_name in income_categories:
+                    income_categories[category_name] += amount
+                else:
+                    income_categories[category_name] = amount
+
+            income_categories_float = {category: float(amount) for category, amount in income_categories.items()}
+
+            return render(request, 'incomes_period.html', {'income_categories': income_categories_float,
+                                                           'start_date': start_date,
+                                                           'end_date': end_date})
+        else:
+            return render(request, 'incomes_period.html', {'error_message': 'Proszę podać daty początkową i końcową.'})
+    else:
+        return render(request, 'incomes_period.html', {'error_message': 'Metoda HTTP nie jest obsługiwana.'})
+
+
 def charts_view(request):
+    available_years = Expense.objects.filter(user=request.user).dates('date', 'year')
+    years = [year.year for year in available_years]
+
     monthly_data = []
     for month in range(1, 13):
         monthly_income = \
-        Income.objects.filter(user=request.user, date__month=month).aggregate(total_income=Sum('amount'))[
-            'total_income'] or 0
+            Income.objects.filter(user=request.user, date__month=month).aggregate(total_income=Sum('amount'))[
+                'total_income'] or 0
         monthly_expense = \
-        Expense.objects.filter(user=request.user, date__month=month).aggregate(total_expense=Sum('amount'))[
-            'total_expense'] or 0
+            Expense.objects.filter(user=request.user, date__month=month).aggregate(total_expense=Sum('amount'))[
+                'total_expense'] or 0
         monthly_balance = monthly_income - monthly_expense
         monthly_data.append({'income': monthly_income, 'expense': monthly_expense, 'balance': monthly_balance})
 
     data_json = json.dumps(monthly_data, cls=DjangoJSONEncoder)
 
-    return render(request, 'charts.html', {'monthly_data': data_json})
+    return render(request, 'charts.html', {'monthly_data': data_json, 'years': years})
+
+
+def get_data(request):
+    year = request.GET.get('year')
+    monthly_data = []
+
+    for month in range(1, 13):
+        monthly_income = Income.objects.filter(user=request.user, date__year=year, date__month=month).aggregate(
+            total_income=Sum('amount'))['total_income'] or 0
+        monthly_expense = Expense.objects.filter(user=request.user, date__year=year, date__month=month).aggregate(
+            total_expense=Sum('amount'))['total_expense'] or 0
+        monthly_balance = monthly_income - monthly_expense
+        monthly_data.append({'income': monthly_income, 'expense': monthly_expense, 'balance': monthly_balance})
+
+    return JsonResponse(monthly_data, safe=False)
 
 
 def categories_view(request):
@@ -302,3 +380,7 @@ def generate_pdf_report(request):
     doc.build(elements)
 
     return response
+
+
+def atms_view(request):
+    return render(request, 'atms.html')

@@ -11,7 +11,7 @@ Plan Your Budget - Lista Dochodów
     <a href="{% url 'fetch_incomes' %}?filter=week" class="btn date-filter-btn" data-filter="week">Tydzień</a>
     <a href="{% url 'fetch_incomes' %}?filter=month" class="btn date-filter-btn" data-filter="month">Miesiąc</a>
     <a href="{% url 'fetch_incomes' %}?filter=year" class="btn date-filter-btn" data-filter="year">Rok</a>
-    <a href="{% url 'fetch_incomes' %}?filter=period" class="btn date-filter-btn" data-filter="period">Okres</a>
+    <a href="{% url 'incomes_period' %}" class="btn date-filter-btn" data-filter="period">Okres</a>
 </div>
 <ul id="income-list">
     {% for income in incomes %}
@@ -34,6 +34,7 @@ Plan Your Budget - Lista Dochodów
 
 <div style="margin-top: 20px;">
     <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
+    <button onclick="window.location.href='{% url 'budget_summary' %}'" class="btn">Suma</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
