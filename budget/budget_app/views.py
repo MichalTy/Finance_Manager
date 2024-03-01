@@ -82,6 +82,7 @@ def expenses_list(request):
 
 @login_required
 def add_expenses(request):
+    expense_categories = Category.objects.filter(type='expense')
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
@@ -94,37 +95,41 @@ def add_expenses(request):
             return redirect('expenses_list')
     else:
         form = ExpenseForm()
-        expense_categories = Category.objects.filter(type='expense')
     return render(request, 'add_expenses.html', {'form': form, 'expense_categories': expense_categories})
 
 
-def fetch_expenses(request):
+def fetch_data(request, model_class, template_name):
     filter = request.GET.get('filter')
     user = request.user
 
     if filter == 'day':
         today = datetime.now().date()
-        expenses = Expense.objects.filter(user=user, date=today).order_by('-date')
+        data = model_class.objects.filter(user=user, date=today).order_by('-date')
     elif filter == 'week':
         today = datetime.now().date()
         start_of_week = today - timedelta(days=today.weekday())
         end_of_week = start_of_week + timedelta(days=6)
-        expenses = Expense.objects.filter(user=user, date__range=[start_of_week, end_of_week]).order_by('-date')
+        data = model_class.objects.filter(user=user, date__range=[start_of_week, end_of_week]).order_by('-date')
     elif filter == 'month':
         today = datetime.now().date()
         start_of_month = today.replace(day=1)
         end_of_month = start_of_month + timedelta(days=32)
         end_of_month = end_of_month.replace(day=1) - timedelta(days=1)
-        expenses = Expense.objects.filter(user=user, date__range=[start_of_month, end_of_month]).order_by('-date')
+        data = model_class.objects.filter(user=user, date__range=[start_of_month, end_of_month]).order_by('-date')
     elif filter == 'year':
         today = datetime.now().date()
         start_of_year = today.replace(month=1, day=1)
         end_of_year = today.replace(month=12, day=31)
-        expenses = Expense.objects.filter(user=user, date__range=[start_of_year, end_of_year]).order_by('-date')
+        data = model_class.objects.filter(user=user, date__range=[start_of_year, end_of_year]).order_by('-date')
     else:
-        expenses = Expense.objects.filter(user=user)
+        data = model_class.objects.filter(user=user)
 
-    return render(request, 'expenses_partial.html', {'expenses': expenses})
+    context = {model_class.__name__.lower() + 's': data}
+    return render(request, template_name, context)
+
+
+def fetch_expenses(request):
+    return fetch_data(request, Expense, 'expenses_partial.html')
 
 
 def expenses_period(request):
@@ -182,32 +187,7 @@ def add_income(request):
 
 
 def fetch_incomes(request):
-    filter = request.GET.get('filter')
-    user = request.user
-
-    if filter == 'day':
-        today = datetime.now().date()
-        incomes = Income.objects.filter(user=user, date=today).order_by('-date')
-    elif filter == 'week':
-        today = datetime.now().date()
-        start_of_week = today - timedelta(days=today.weekday())
-        end_of_week = start_of_week + timedelta(days=6)
-        incomes = Income.objects.filter(user=user, date__range=[start_of_week, end_of_week]).order_by('-date')
-    elif filter == 'month':
-        today = datetime.now().date()
-        start_of_month = today.replace(day=1)
-        end_of_month = start_of_month + timedelta(days=32)
-        end_of_month = end_of_month.replace(day=1) - timedelta(days=1)
-        incomes = Income.objects.filter(user=user, date__range=[start_of_month, end_of_month]).order_by('-date')
-    elif filter == 'year':
-        today = datetime.now().date()
-        start_of_year = today.replace(month=1, day=1)
-        end_of_year = today.replace(month=12, day=31)
-        incomes = Income.objects.filter(user=user, date__range=[start_of_year, end_of_year]).order_by('-date')
-    else:
-        incomes = Income.objects.filter(user=user)
-
-    return render(request, 'incomes_partial.html', {'incomes': incomes})
+    return fetch_data(request, Income, 'incomes_partial.html')
 
 
 def incomes_period(request):
@@ -269,6 +249,7 @@ def get_data(request):
             total_income=Sum('amount'))['total_income'] or 0
         monthly_expense = Expense.objects.filter(user=request.user, date__year=year, date__month=month).aggregate(
             total_expense=Sum('amount'))['total_expense'] or 0
+
         monthly_balance = monthly_income - monthly_expense
         monthly_data.append({'income': monthly_income, 'expense': monthly_expense, 'balance': monthly_balance})
 
@@ -295,7 +276,7 @@ def add_category_view(request):
                 return redirect('categories_income')
     else:
         form = CategoryForm()
-    return render(request, 'add_category.html', {'form': form})
+    return render(request, {'form': form})
 
 
 @login_required

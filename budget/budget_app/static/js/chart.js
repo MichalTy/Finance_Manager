@@ -1,27 +1,6 @@
-{% extends 'base.html' %}
-{% block title %}Wykresy - Plan Your Budget{% endblock %}
-{% block content %}
-<section class="charts-section">
-    <h2>Wykresy</h2>
-    <div>
-        <label for="yearSelect">Wybierz rok:</label>
-        <select id="yearSelect">
-            {% for year in years %}
-                <option value="{{ year }}" {% if year == selected_year %} selected {% endif %}>{{ year }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <canvas id="budgetChart" width="800" height="400"></canvas>
-</section>
-<div style="margin-top: 20px;">
-    <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
 document.addEventListener('DOMContentLoaded', function () {
     // Dane JSON
-    const monthlyData = JSON.parse('{{ monthly_data|escapejs }}');
+    const monthlyData = JSON.parse('{{ monthly_data|escapejs|safe }}');
 
     // Dane do wykresu
     const labels = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
@@ -86,6 +65,3 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 });
-
-</script>
-{% endblock %}

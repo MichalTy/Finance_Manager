@@ -4,23 +4,6 @@ Plan Your Budget - Kategorie
 {% endblock %}
 
 {% block content %}
-<style>
-    .category-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .category-name {
-        margin-left: 40px;
-    }
-
-    .delete-form {
-        margin-left: 10px;
-    }
-</style>
-
 <h2>Kategorie</h2>
 
 <h3>Kategorie Wydatków</h3>
@@ -56,7 +39,7 @@ Plan Your Budget - Kategorie
     <input type="text" id="new_category" name="new_category" required><br><br>
     <label for="category_type">Typ:</label>
     <select id="category_type" name="category_type">
-        <option value="expense">Wydatek</option>
+        <option value="expense">Wydatki</option>
         <option value="income">Dochód</option>
     </select><br><br>
     <button type="submit">Dodaj</button>

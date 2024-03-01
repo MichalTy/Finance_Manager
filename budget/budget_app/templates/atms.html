@@ -1,8 +1,23 @@
-{% extends 'base.html' %}
-{% block title %}
-Plan Your Budget - Bankomaty
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Marker</title>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=<API>>&callback=console.debug&libraries=maps,marker&v=beta">
+    </script>
+    <style>
 
-{% endblock %}
-
-
-
+      #map-container {
+        width: 500px;
+        height: 400px;
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map-container">
+      <gmp-map center="51.24646759033203,22.568500518798828" zoom="14" map-id="DEMO_MAP_ID">
+        <gmp-advanced-marker position="51.24646759033203,22.568500518798828" title="My location"></gmp-advanced-marker>
+      </gmp-map>
+    </div>
+  </body>
+</html>

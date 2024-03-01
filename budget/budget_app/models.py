@@ -17,7 +17,7 @@ class Transaction(models.Model):
 
 class Budget(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
 
 
@@ -35,3 +35,4 @@ class Income(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
     comment = models.TextField(blank=True, null=True)
+

@@ -17,6 +17,7 @@ Including another URLconf
 from django.urls import path
 from budget_app import views
 
+
 urlpatterns = [
     path('', views.home, name='home'),
     path('budget_summary/', views.budget_summary, name='budget_summary'),
