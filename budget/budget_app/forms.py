@@ -6,49 +6,73 @@ from .models import Expense, Income
 
 
 class RegistrationForm(UserCreationForm):
-    email = forms.EmailField()  # Adds an email field to the registration form
+    '''
+    Registration form with additional email field.
+    '''
+    email = forms.EmailField()
 
     class Meta:
-        model = User  # Specifies the User model
-        fields = ['username', 'email', 'password1', 'password2']  # Fields to be displayed in the form
+        '''
+        Meta class specifying the User model and fields.
+        '''
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
 
 
 class ExpenseForm(forms.ModelForm):
+    '''
+    Form for adding expenses.
+    '''
     class Meta:
+        '''
+        Meta class specifying the Expense model and fields.
+        '''
         model = Expense  # Specifies the Expense model
-        fields = ['category', 'amount', 'date', 'comment']  # Fields to be displayed in the form
+        fields = ['category', 'amount', 'date', 'comment']
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),  # Configures the date field to use a date picker
+            'date': forms.DateInput(attrs={'type': 'date'}),
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)  # Retrieves the 'user' parameter from kwargs
-        super(ExpenseForm, self).__init__(*args, **kwargs)  # Calls the parent class constructor
+        '''
+        Constructor method for ExpenseForm.
+        '''
+        user = kwargs.pop('user', None)
+        super(ExpenseForm, self).__init__(*args, **kwargs)
         if user:
-            # Filters the category choices based on the user's expenses and removes duplicates
             self.fields['category'].queryset = self.fields['category'].queryset.filter(expense__isnull=False,
                                                                                        user=user).distinct()
 
 
 class IncomeForm(forms.ModelForm):
+    '''
+    Form for adding incomes.
+    '''
     class Meta:
-        model = Income  # Specifies the Income model
-        fields = ['category', 'amount', 'date', 'comment']  # Fields to be displayed in the form
+        '''
+        Meta class specifying the Income model and fields.
+        '''
+        model = Income
+        fields = ['category', 'amount', 'date', 'comment']
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),  # Configures the date field to use a date picker
+            'date': forms.DateInput(attrs={'type': 'date'}),
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)  # Retrieves the 'user' parameter from kwargs
-        super(IncomeForm, self).__init__(*args, **kwargs)  # Calls the parent class constructor
+        '''
+        Constructor method for IncomeForm.
+        '''
+        user = kwargs.pop('user', None)
+        super(IncomeForm, self).__init__(*args, **kwargs)
         if user:
-            # Filters the category choices based on the user's incomes and removes duplicates
             self.fields['category'].queryset = self.fields['category'].queryset.filter(income__isnull=False,
                                                                                        user=user).distinct()
 
 
 class CategoryForm(forms.Form):
-    new_category = forms.CharField(label='Nowa kategoria', max_length=100)  # Adds a text field for a new category
+    '''
+    Form for adding categories.
+    '''
+    new_category = forms.CharField(label='Nowa kategoria', max_length=100)
     category_type = forms.ChoiceField(label='Typ', choices=(('expense', 'Wydatek'), ('income', 'Dochód')))
-    # Adds a dropdown for selecting the type of category: expense or income
 
