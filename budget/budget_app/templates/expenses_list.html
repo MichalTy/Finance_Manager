@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block title %}
 Plan Your Budget - Lista Wydatków
 {% endblock %}
@@ -12,11 +13,11 @@ Plan Your Budget - Lista Wydatków
     <a href="{% url 'fetch_expenses' %}?filter=month" class="btn date-filter-btn" data-filter="month">Miesiąc</a>
     <a href="{% url 'fetch_expenses' %}?filter=year" class="btn date-filter-btn" data-filter="year">Rok</a>
     <a href="{% url 'expenses_period' %}" class="btn date-filter-btn" data-filter="period">Okres</a>
-
 </div>
+
 <ul id="expense-list">
     {% for expense in expenses %}
-        <li>
+        <li class="expense-item" style="{% if forloop.counter > 5 %}display: none;{% endif %}">
             <span class="expense-amount">{{ expense.amount }}</span>
             <span class="expense-date">{{ expense.date }}</span>
             <span class="expense-category">{{ expense.category.name }}</span>
@@ -29,14 +30,28 @@ Plan Your Budget - Lista Wydatków
     {% endfor %}
 </ul>
 
+{% if expenses|length > 5 %}
+    <button id="show-more-expenses" class="btn">Wyświetl więcej</button>
+    <script>
+        document.getElementById('show-more-expenses').addEventListener('click', function() {
+            const hiddenExpenses = document.querySelectorAll('.expense-item:not(:nth-child(-n+5))');
+            hiddenExpenses.forEach(function(expense) {
+                expense.style.display = 'list-item';
+            });
+            document.getElementById('show-more-expenses').style.display = 'none';
+        });
+    </script>
+{% endif %}
+
 <section class="pie-chart-section">
     <canvas id="categoryPieChart" width="400" height="400"></canvas>
 </section>
 
 <div style="margin-top: 20px;">
     <button onclick="window.location.href='{% url 'home' %}'" class="btn">Wróć</button>
-    <button onclick="window.location.href='{% url 'budget_summary' %}'" class="btn">Suma</button
+    <button onclick="window.location.href='{% url 'budget_summary' %}'" class="btn">Suma</button>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const expenseCategories = {};
@@ -56,11 +71,6 @@ Plan Your Budget - Lista Wydatków
 
     const categoryLabels = Object.keys(expenseCategories);
     const categoryAmounts = Object.values(expenseCategories);
-
-    console.log(categoryLabels);
-    console.log(categoryAmounts);
-
-    console.log(document.getElementById('categoryPieChart'));
 
     if (document.getElementById('categoryPieChart')) {
         const ctx = document.getElementById('categoryPieChart').getContext('2d');
@@ -98,8 +108,5 @@ Plan Your Budget - Lista Wydatków
         });
     }
 </script>
-
-
-
 
 {% endblock %}
